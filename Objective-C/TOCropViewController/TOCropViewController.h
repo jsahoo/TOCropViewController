@@ -42,12 +42,6 @@
 @optional
 
 /**
- Called when the user hits the "Done" button and the framework begins constructing a new `UIImage` from the cropped section.
- */
-@optional
-- (void)cropViewControllerDidBeginProcessingCrop:(nonnull TOCropViewController *)cropViewController;
-
-/**
  Called when the user has committed the crop action, and provides 
  just the cropping rectangle.
 
@@ -331,6 +325,9 @@
  aspect ratios the crop view controller may display (Default is nil. All are shown)
  */
 @property (nullable, nonatomic, strong) NSArray<NSNumber *> *allowedAspectRatios;
+
+/// Called when the user hits the "Done" button and the framework begins constructing a new `UIImage` from the cropped section.
+@property (nullable, nonatomic, copy) void (^onDidBeginProcessing)(void);
 
 /**
  When the user hits cancel, or completes a

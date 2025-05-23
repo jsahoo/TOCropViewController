@@ -968,9 +968,12 @@ static const CGFloat kTOCropViewControllerToolbarHeight = 44.0f;
     
     BOOL isCallbackOrDelegateHandled = NO;
 
-    if ([self.delegate respondsToSelector:@selector(cropViewControllerDidBeginProcessingCrop:)]) {
-        [self.delegate cropViewControllerDidBeginProcessingCrop:self];
+    if (self.onDidBeginProcessing) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.onDidBeginProcessing();
+        });
     }
+
 
     //If the delegate/block that only supplies crop data is provided, call it
     if ([self.delegate respondsToSelector:@selector(cropViewController:didCropImageToRect:angle:)]) {

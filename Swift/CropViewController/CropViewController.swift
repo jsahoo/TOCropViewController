@@ -44,6 +44,12 @@ public typealias CropViewCroppingStyle = TOCropViewCroppingStyle
 // ------------------------------------------------
 
 @MainActor @objc public protocol CropViewControllerDelegate: NSObjectProtocol {
+
+    /**
+     Called when the crop view controller begins processing the crop.
+     */
+    @objc optional func cropViewControllerDidBeginProcessingCrop(_ cropViewController: CropViewController)
+
     /**
      Called when the user has committed the crop action, and provides
      just the cropping rectangle.
@@ -288,7 +294,11 @@ open class CropViewController: UIViewController, TOCropViewControllerDelegate {
         set { toCropViewController.doneButtonHidden = newValue }
         get { return toCropViewController.doneButtonHidden }
     }
-    
+
+    public func setDoneButtonEnabled(_ enabled: Bool) {
+        toCropViewController.setDoneButtonEnabled(enabled)
+    }
+
     /**
      When enabled, hides the 'Cancel' button on the toolbar.
 
@@ -337,7 +347,13 @@ open class CropViewController: UIViewController, TOCropViewControllerDelegate {
         set { toCropViewController.allowedAspectRatios = newValue?.map { NSNumber(value: $0.rawValue) } }
         get { return toCropViewController.allowedAspectRatios?.compactMap { CropViewControllerAspectRatioPreset(rawValue: $0.intValue) } }
     }
-    
+
+    /// Called when the user hits the "Done" button and the framework begins constructing a new `UIImage` from the cropped section.
+    public var onDidBeginProcessing: (() -> Void)? {
+        set { toCropViewController.onDidBeginProcessing = newValue }
+        get { return toCropViewController.onDidBeginProcessing }
+    }
+
     /**
      When the user hits cancel, or completes a
      UIActivityViewController operation, this block will be called,
@@ -672,13 +688,21 @@ extension CropViewController {
     
     fileprivate func setUpDelegateHandlers() {
         guard let delegate = self.delegate else {
+            onDidBeginProcessing = nil
             onDidCropToRect = nil
             onDidCropImageToRect = nil
             onDidCropToCircleImage = nil
             onDidFinishCancelled = nil
             return
         }
-        
+
+        if delegate.responds(to: #selector((any CropViewControllerDelegate).cropViewControllerDidBeginProcessingCrop(_:))) {
+            self.onDidBeginProcessing = { [weak self] in
+                guard let self else { return }
+                delegate.cropViewControllerDidBeginProcessingCrop?(self)
+            }
+        }
+
         if delegate.responds(to: #selector((any CropViewControllerDelegate).cropViewController(_:didCropImageToRect:angle:))) {
             self.onDidCropImageToRect = {[weak self] rect, angle in
                 guard let strongSelf = self else { return }
