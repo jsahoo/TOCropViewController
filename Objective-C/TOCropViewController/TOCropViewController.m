@@ -967,7 +967,11 @@ static const CGFloat kTOCropViewControllerToolbarHeight = 44.0f;
     }
     
     BOOL isCallbackOrDelegateHandled = NO;
-    
+
+    if ([self.delegate respondsToSelector:@selector(cropViewControllerDidBeginProcessingCrop:)]) {
+        [self.delegate cropViewControllerDidBeginProcessingCrop:self];
+    }
+
     //If the delegate/block that only supplies crop data is provided, call it
     if ([self.delegate respondsToSelector:@selector(cropViewController:didCropImageToRect:angle:)]) {
         [self.delegate cropViewController:self didCropImageToRect:cropFrame angle:angle];
@@ -1075,6 +1079,10 @@ static const CGFloat kTOCropViewControllerToolbarHeight = 44.0f;
 
 - (void)setCancelButtonColor:(UIColor *)color {
     self.toolbar.cancelButtonColor = color;
+}
+
+- (void)setDoneButtonEnabled:(BOOL)enabled {
+    self.toolbar.doneTextButton.enabled = enabled;
 }
 
 - (TOCropView *)cropView

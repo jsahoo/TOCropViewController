@@ -42,6 +42,12 @@
 @optional
 
 /**
+ Called when the user hits the "Done" button and the framework begins constructing a new `UIImage` from the cropped section.
+ */
+@optional
+- (void)cropViewControllerDidBeginProcessingCrop:(nonnull TOCropViewController *)cropViewController;
+
+/**
  Called when the user has committed the crop action, and provides 
  just the cropping rectangle.
 
@@ -480,6 +486,8 @@
                                         toFrame:(CGRect)frame
                                           setup:(nullable void (^)(void))setup
                                      completion:(nullable void (^)(void))completion NS_SWIFT_NAME(dismissAnimatedFrom(_:croppedImage:toView:toFrame:setup:completion:));
+
+- (void)setDoneButtonEnabled:(BOOL)enabled;
 
 @end
 
